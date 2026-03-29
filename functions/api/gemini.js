@@ -1,8 +1,9 @@
-// Cloudflare 专用 Gemini 中转接口
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 export async function onRequestPost(context) {
   try {
     const { prompt } = await context.request.json();
-    const genAI = new (await import("@google/generative-ai")).GoogleGenerativeAI(context.env.GEMINI_API_KEY);
+    const genAI = new GoogleGenerativeAI(context.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const result = await model.generateContent(prompt);
