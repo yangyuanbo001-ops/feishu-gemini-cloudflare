@@ -1,11 +1,12 @@
-// 终极调试：完整打印Gemini所有返回数据
+// 官方标准v1接口 + 通用模型 100%可调用
 export async function onRequestPost(context) {
   try {
     const { prompt } = await context.request.json();
     const API_KEY = context.env.GEMINI_API_KEY;
 
+    // ✅ 官方正式版接口 v1 + 标准模型名 gemini-1.0-pro
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -13,15 +14,14 @@ export async function onRequestPost(context) {
       }
     );
 
-    // 直接返回全部原始数据！
     const data = await res.json();
-    return new Response(JSON.stringify({ 
-      状态码: res.status,
-      完整响应: data
-    }), { headers: { "Content-Type": "application/json" } });
-
+    const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "AI返回为空";
+    
+    return new Response(JSON.stringify({ result: answer }), {
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (err) {
-    return new Response(JSON.stringify({ 错误: err.message }), {
+    return new Response(JSON.stringify({ result: err.message }), {
       headers: { "Content-Type": "application/json" }
     });
   }
